@@ -1,36 +1,33 @@
 <!DOCTYPE html>
 <html lang="it">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Pagamento completato</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Redirect automatico a Telegram -->
-    <meta http-equiv="refresh" content="3; url=tg://resolve?domain=FoulesolExclusive_bot" />
-    <style>
-      body {
-        text-align: center;
-        font-family: sans-serif;
-        padding-top: 50px;
-        background-color: #f8f8f8;
-      }
-      h2 {
-        color: #27ae60;
-      }
-      a {
-        display: inline-block;
-        margin-top: 20px;
-        padding: 10px 20px;
-        background-color: #27ae60;
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-      }
-    </style>
-  </head>
-  <body>
-    <h2>✅ Pagamento ricevuto!</h2>
-    <p>Ora verifichiamo il pagamento... Stai per tornare su Telegram.</p>
-    <p>Se non succede nulla, clicca il pulsante qui sotto 👇</p>
-    <a href="tg://resolve?domain=FoulesolExclusive_bot">Torna al bot</a>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Pagamento completato</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h2>✅ Pagamento completato!</h2>
+  <p>Torna ora su Telegram e premi <strong>“Guarda foto”</strong>.</p>
+
+  <script>
+    // Recupera parametri dalla URL (es. ?chat_id=123)
+    const params = new URLSearchParams(window.location.search);
+    const chat_id = params.get("chat_id");
+
+    if (chat_id) {
+      fetch("https://67f6d3471e1e1546c937.appwrite.global/v1/functions/67f6d345003e6da67d40/executions", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `payment_status=Completed&custom=${chat_id}`
+      });
+    }
+  </script>
+</body>
 </html>
