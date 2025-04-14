@@ -53,10 +53,8 @@
         return;
       }
 
-      console.log("🌍 Invio richiesta a Netlify con chat_id:", chatId);
-
       try {
-        const response = await fetch("https://comfy-mermaid-9cebbf.netlify.app/.netlify/functions/notify", {
+        const response = await fetch("https://comfy-mermaid-9cebbf.netlify.app/api/notify", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -75,7 +73,7 @@
         }
       } catch (err) {
         console.error("Errore fetch:", err);
-        alert("❌ Errore nella comunicazione con il server.");
+        alert("❌ Errore nella comunicazione con il server netlify.");
       }
     }
   </script>
