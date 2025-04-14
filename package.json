@@ -1,0 +1,13 @@
+{
+  "name": "telegram-bridge",
+  "version": "1.0.0",
+  "description": "Function bridge tra Netlify e Appwrite",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "echo no build step"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
