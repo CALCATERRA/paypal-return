@@ -44,7 +44,7 @@
   </div>
 
   <script>
-    function notificaAppwrite() {
+    async function notificaAppwrite() {
       const urlParams = new URLSearchParams(window.location.search);
       const chatId = urlParams.get("chat_id");
 
@@ -53,25 +53,32 @@
         return;
       }
 
-      fetch("https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions?project=67f037f300060437d16d", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          source: "manual-return",
-          chat_id: chatId
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        alert("✅ Ora torna su Telegram e premi Guarda foto!");
-        console.log("Notifica inviata:", data);
-      })
-      .catch(err => {
-        alert("❌ Errore nell'invio, riprova.");
-        console.error("Errore:", err);
-      });
+      try {
+        const response = await fetch("https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            source: "manual-return",
+            chat_id: chatId
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert("✅ Ora torna su Telegram e premi Guarda foto!");
+          console.log("✅ Notifica inviata:", result);
+        } else {
+          console.error("Errore dal server:", result);
+          alert("❌ Qualcosa è andato storto. Riprova.");
+        }
+      } catch (err) {
+        console.error("Errore fetch:", err);
+        alert("❌ Errore nella comunicazione con il server.");
+      }
     }
   </script>
 </body>
 </html>
-
