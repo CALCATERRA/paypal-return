@@ -17,16 +17,20 @@
   <p>Torna ora su Telegram e premi <strong>“Guarda foto”</strong>.</p>
 
   <script>
-    // Recupera parametri dalla URL (es. ?chat_id=123)
     const params = new URLSearchParams(window.location.search);
     const chat_id = params.get("chat_id");
 
     if (chat_id) {
       fetch("https://67f6d3471e1e1546c937.appwrite.global/v1/functions/67f6d345003e6da67d40/executions", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `payment_status=Completed&custom=${chat_id}`
-      });
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          source: "paypal-return",
+          chat_id: chat_id
+        })
+      }).then(res => console.log("✅ Notifica inviata")).catch(err => console.error("❌ Errore notifica", err));
     }
   </script>
 </body>
