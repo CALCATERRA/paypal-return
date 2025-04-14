@@ -40,11 +40,11 @@
     <h1>✅ Pagamento completato!</h1>
     <p>Grazie per il tuo supporto ❤️</p>
     <p>Ora premi il pulsante qui sotto per ricevere la foto su Telegram:</p>
-    <button onclick="notificaAppwrite()">Pagamento effettuato</button>
+    <button onclick="notificaNetlify()">Pagamento effettuato</button>
   </div>
 
   <script>
-    async function notificaAppwrite() {
+    async function notificaNetlify() {
       const urlParams = new URLSearchParams(window.location.search);
       const chatId = urlParams.get("chat_id");
 
@@ -54,15 +54,12 @@
       }
 
       try {
-        const response = await fetch("https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions", {
+        const response = await fetch("https://comfy-mermaid-9cebbf.netlify.app/.netlify/functions/notify", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-            source: "manual-return",
-            chat_id: chatId
-          })
+          body: JSON.stringify({ chat_id: chatId })
         });
 
         const result = await response.json();
