@@ -1,11 +1,6 @@
 [build]
   functions = "api"
 
-[[redirects]]
-  from = "/api/notify"
-  to = "/api/notify"
-  status = 200
-
 [[headers]]
   for = "/api/notify"
   [headers.values]
