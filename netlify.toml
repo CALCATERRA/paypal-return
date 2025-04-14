@@ -1,0 +1,7 @@
+[build]
+  functions = "api"
+
+[[redirects]]
+  from = "/api/notify"
+  to = "/.netlify/functions/notify"
+  status = 200
