@@ -2,8 +2,8 @@
   functions = "api"
 
 [[redirects]]
-  from = "/api/notify"
-  to = "/.netlify/functions/notify"
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
   status = 200
 
 [[headers]]
