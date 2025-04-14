@@ -20,35 +20,58 @@
     h1 {
       color: #27ae60;
     }
+    button {
+      font-size: 1.2em;
+      padding: 15px 30px;
+      margin-top: 20px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #219150;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>✅ Pagamento completato!</h1>
     <p>Grazie per il tuo supporto ❤️</p>
-    <p>Ora puoi tornare su Telegram e premere il pulsante <strong>Guarda foto</strong>.</p>
+    <p>Ora premi il pulsante qui sotto per ricevere la foto su Telegram:</p>
+    <button onclick="notificaAppwrite()">Pagamento effettuato</button>
   </div>
 
   <script>
-    // Estrai il chat_id dal parametro URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const chatId = urlParams.get("chat_id");
+    function notificaAppwrite() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const chatId = urlParams.get("chat_id");
 
-    if (chatId) {
+      if (!chatId) {
+        alert("Errore: chat_id mancante nell'URL.");
+        return;
+      }
+
       fetch("https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          source: "paypal-return",
+          source: "manual-return",
           chat_id: chatId
         })
       })
       .then(res => res.json())
-      .then(data => console.log("✅ Notifica inviata ad Appwrite:", data))
-      .catch(err => console.error("❌ Errore nella notifica:", err));
-    } else {
-      console.error("❌ chat_id non trovato nell'URL");
+      .then(data => {
+        alert("✅ Ora torna su Telegram e premi Guarda foto!");
+        console.log("Notifica inviata:", data);
+      })
+      .catch(err => {
+        alert("❌ Errore nell'invio, riprova.");
+        console.error("Errore:", err);
+      });
     }
   </script>
 </body>
 </html>
+
