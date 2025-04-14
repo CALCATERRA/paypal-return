@@ -3,34 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <title>Pagamento completato</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      padding-top: 100px;
+      padding: 50px;
+      background: #f8f8f8;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      display: inline-block;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #27ae60;
     }
   </style>
 </head>
 <body>
-  <h2>✅ Pagamento completato!</h2>
-  <p>Torna ora su Telegram e premi <strong>“Guarda foto”</strong>.</p>
+  <div class="container">
+    <h1>✅ Pagamento completato!</h1>
+    <p>Grazie per il tuo supporto ❤️</p>
+    <p>Ora puoi tornare su Telegram e premere il pulsante <strong>Guarda foto</strong>.</p>
+  </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const chat_id = params.get("chat_id");
+    // Estrai il chat_id dal parametro URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatId = urlParams.get("chat_id");
 
-    if (chat_id) {
-      fetch("https://67f6d3471e1e1546c937.appwrite.global/v1/functions/67f6d345003e6da67d40/executions", {
+    if (chatId) {
+      fetch("https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           source: "paypal-return",
-          chat_id: chat_id
+          chat_id: chatId
         })
-      }).then(res => console.log("✅ Notifica inviata")).catch(err => console.error("❌ Errore notifica", err));
+      })
+      .then(res => res.json())
+      .then(data => console.log("✅ Notifica inviata ad Appwrite:", data))
+      .catch(err => console.error("❌ Errore nella notifica:", err));
+    } else {
+      console.error("❌ chat_id non trovato nell'URL");
     }
   </script>
 </body>
