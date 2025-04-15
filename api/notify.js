@@ -1,6 +1,8 @@
 const fetch = require('node-fetch');
 
 exports.handler = async function (event, context) {
+  console.log("👉 Funzione chiamata");
+
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -11,6 +13,8 @@ exports.handler = async function (event, context) {
   try {
     const body = JSON.parse(event.body);
     const chatId = body.chat_id;
+
+    console.log("📥 chat_id ricevuto:", chatId);
 
     if (!chatId) {
       return {
@@ -34,12 +38,14 @@ exports.handler = async function (event, context) {
 
     const result = await appwriteResponse.json();
 
+    console.log("📤 Risposta da Appwrite:", result);
+
     return {
       statusCode: 200,
       body: JSON.stringify(result)
     };
   } catch (error) {
-    console.error('Errore:', error);
+    console.error('❌ Errore nella notify.js:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Errore interno del server' })
