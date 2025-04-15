@@ -1,8 +1,6 @@
 const fetch = require('node-fetch');
 
 exports.handler = async function (event, context) {
-  console.log("👉 Funzione chiamata");
-
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -13,8 +11,6 @@ exports.handler = async function (event, context) {
   try {
     const body = JSON.parse(event.body);
     const chatId = body.chat_id;
-
-    console.log("📥 chat_id ricevuto:", chatId);
 
     if (!chatId) {
       return {
@@ -27,8 +23,8 @@ exports.handler = async function (event, context) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Appwrite-Project': 'TUO_PROJECT_ID',
-        'X-Appwrite-Key': 'LA_TUA_API_KEY'
+        'X-Appwrite-Project': '67fd01767b6cc3ff6cc6',
+        'X-Appwrite-Key': 'standard_9eb0f84522bd452ab9c78a14ae51298b6eb019b2f803a2c17221e37f422064137df7be925f7b6832eb91f511428779103737b1238b139c1cfffaa00b131a65dd1f203f8a54c2b163485319aa750920d3b3f03dedc78b46773e58470bdf3a9e7033d94896171fea4b8034f252405f0eaa5cc2c07ebb7e0634ad503a09262077ca'
       },
       body: JSON.stringify({
         source: 'manual-return',
@@ -38,14 +34,12 @@ exports.handler = async function (event, context) {
 
     const result = await appwriteResponse.json();
 
-    console.log("📤 Risposta da Appwrite:", result);
-
     return {
       statusCode: 200,
       body: JSON.stringify(result)
     };
   } catch (error) {
-    console.error('❌ Errore nella notify.js:', error);
+    console.error('Errore:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Errore interno del server' })
