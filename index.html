@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Pagamento completato</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
@@ -12,23 +13,30 @@
     }
     .container {
       background: white;
-      padding: 30px;
-      border-radius: 8px;
+      padding: 40px 30px;
+      border-radius: 12px;
       display: inline-block;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
     h1 {
       color: #27ae60;
+      font-size: 2em;
+    }
+    p {
+      font-size: 1.2em;
     }
     button {
-      font-size: 1.2em;
-      padding: 15px 30px;
-      margin-top: 20px;
+      font-size: 1.4em;
+      padding: 20px 40px;
+      margin-top: 30px;
       background-color: #27ae60;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
+      transition: background-color 0.2s ease;
     }
     button:hover {
       background-color: #219150;
@@ -40,7 +48,7 @@
     <h1>✅ Pagamento completato!</h1>
     <p>Grazie per il tuo supporto ❤️</p>
     <p>Ora premi il pulsante qui sotto per ricevere la foto su Telegram:</p>
-    <button onclick="notificaNetlify()">Pagamento effettuato</button>
+    <button onclick="notificaNetlify()">📥 Pagamento effettuato</button>
   </div>
 
   <script>
@@ -59,7 +67,10 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ chat_id: chatId })
+          body: JSON.stringify({
+            chat_id: chatId,
+            source: "manual-return"
+          })
         });
 
         const result = await response.json();
