@@ -17,7 +17,7 @@ def handler(event, context):
 
         # 🔁 Manda la richiesta ad Appwrite (o direttamente a Telegram)
         res = requests.post(
-            "https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/680250b10020b9b9190d/executions",
+            "https://680250b299914130d313.fra.appwrite.run/",
             headers={"Content-Type": "application/json"},
             json={"source": "manual-return", "chat_id": chat_id}
         )
