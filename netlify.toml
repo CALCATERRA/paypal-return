@@ -7,7 +7,7 @@
   status = 200
 
 [[headers]]
-  for = "/.netlify/functions/*"
+  for = "/api/notify"
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Headers = "Content-Type"
