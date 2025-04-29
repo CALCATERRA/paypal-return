@@ -55,21 +55,22 @@
     async function notificaNetlify() {
       const urlParams = new URLSearchParams(window.location.search);
       const chatId = urlParams.get("chat_id");
+      const step = urlParams.get("step");
 
-      if (!chatId) {
-        alert("Errore: chat_id mancante nell'URL.");
+      if (!chatId || !step) {
+        alert("Errore: chat_id o step mancante nell'URL.");
         return;
       }
 
       try {
-        const response = await fetch("https://comfy-mermaid-9cebbf.netlify.app/api/notify", {
+        const response = await fetch("https://comfy-mermaid-9cebbf.netlify.app/.netlify/functions/notify", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
             chat_id: chatId,
-            source: "manual-return"
+            step: parseInt(step)
           })
         });
 
@@ -84,7 +85,7 @@
         }
       } catch (err) {
         console.error("Errore fetch:", err);
-        alert("❌ Errore nella comunicazione con il server netlify.");
+        alert("❌ Errore nella comunicazione con il server Netlify.");
       }
     }
   </script>
