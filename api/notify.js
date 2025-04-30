@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 export async function handler(event, context) {
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -35,12 +33,12 @@ export async function handler(event, context) {
       };
     }
 
-    const appwriteResponse = await fetch('https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions', {
+    const response = await fetch('https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Appwrite-Project': '67fd01767b6cc3ff6cc6',
-        'X-Appwrite-Key': 'standard_9eb0...' // <-- sostituisci con la tua vera chiave
+        'X-Appwrite-Key': 'standard_9eb0...' // <-- Sostituiscila con la tua vera chiave
       },
       body: JSON.stringify({
         source: 'manual-return',
@@ -49,25 +47,25 @@ export async function handler(event, context) {
       })
     });
 
-    const appwriteResult = await appwriteResponse.json();
+    const result = await response.json();
 
-    if (!appwriteResponse.ok) {
-      console.error("❌ Errore Appwrite:", appwriteResult);
+    if (!response.ok) {
+      console.error("❌ Errore Appwrite:", result);
       return {
         statusCode: 500,
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ error: 'Errore da Appwrite', detail: appwriteResult })
+        body: JSON.stringify({ error: 'Errore da Appwrite', detail: result })
       };
     }
 
-    console.log("✅ Appwrite eseguito con successo", appwriteResult);
+    console.log("✅ Successo:", result);
     return {
       statusCode: 200,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ status: 'notifica inviata', result: appwriteResult })
+      body: JSON.stringify({ status: 'notifica inviata', result })
     };
   } catch (error) {
-    console.error('❌ Errore interno:', error);
+    console.error("❌ Errore interno:", error);
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
