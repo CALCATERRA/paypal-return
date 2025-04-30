@@ -1,6 +1,6 @@
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+import fetch from 'node-fetch';
 
-exports.handler = async function (event, context) {
+export async function handler(event, context) {
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -34,13 +34,13 @@ exports.handler = async function (event, context) {
       };
     }
 
-    // Chiamata alla funzione Appwrite (main.py)
+    // Chiamata alla funzione Appwrite
     await fetch('https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Appwrite-Project': '67fd01767b6cc3ff6cc6',
-        'X-Appwrite-Key': 'standard_9eb0...' // Assicurati di usare la chiave corretta
+        'X-Appwrite-Key': 'standard_9eb0...'  // inserisci la chiave corretta
       },
       body: JSON.stringify({
         source: 'manual-return',
@@ -62,4 +62,4 @@ exports.handler = async function (event, context) {
       body: JSON.stringify({ error: 'Errore interno del server' })
     };
   }
-};
+}
