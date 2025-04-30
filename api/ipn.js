@@ -1,47 +1,68 @@
-const querystring = require("querystring");
+const axios = require("axios");
 
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      body: "Method Not Allowed"
-    };
-  }
+exports.handler = async function (event, context) {
+  try {
+    const body = JSON.parse(event.body);
 
-  const rawBody = event.body;
+    // 🔒 Controllo tipo evento
+    if (body.event_type !== "CHECKOUT.ORDER.APPROVED") {
+      return {
+        statusCode: 200,
+        body: "Evento ignorato"
+      };
+    }
 
-  // Forward the data to PayPal for IPN validation
-  const validationBody = `cmd=_notify-validate&${rawBody}`;
+    const purchaseUnit = body.resource.purchase_units?.[0];
+    const customId = purchaseUnit?.custom_id;
 
-  const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-  const response = await fetch("https://ipnpb.paypal.com/cgi-bin/webscr", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: validationBody
-  });
+    if (!customId || !customId.includes(":")) {
+      return {
+        statusCode: 400,
+        body: "custom_id mancante o malformato"
+      };
+    }
 
-  const verification = await response.text();
+    const [chat_id, stepStr] = customId.split(":");
+    const step = parseInt(stepStr);
 
-  if (verification === "VERIFIED") {
-    // ✅ OK: IPN ricevuto e valido da PayPal
-    const data = querystring.parse(rawBody);
+    if (!chat_id || isNaN(step)) {
+      return {
+        statusCode: 400,
+        body: "Dati non validi"
+      };
+    }
 
-    const [chat_id, step] = (data.custom || "").split(":");
+    // 🔁 Chiama la funzione main.py di Appwrite
+    const FUNCTION_ID = "67f6d345003e6da67d40"; // <-- il tuo ID funzione
+    const APPWRITE_API_KEY = process.env.APPWRITE_API_KEY; // ⚠️ Da impostare in Netlify
+    const APPWRITE_PROJECT_ID = process.env.APPWRITE_PROJECT_ID; // ⚠️ Da impostare in Netlify
+    const APPWRITE_ENDPOINT = "https://cloud.appwrite.io/v1";
 
-    // Esempio: chiama il tuo endpoint Appwrite o Telegram
-    console.log("✅ IPN verificato", { chat_id, step });
+    const response = await axios.post(
+      `${APPWRITE_ENDPOINT}/functions/${FUNCTION_ID}/executions`,
+      {
+        source: "manual-return",
+        chat_id: chat_id,
+        step: step
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Appwrite-Project": APPWRITE_PROJECT_ID,
+          "X-Appwrite-Key": APPWRITE_API_KEY
+        }
+      }
+    );
 
     return {
       statusCode: 200,
-      body: "IPN ricevuto e verificato"
+      body: JSON.stringify({ status: "OK", executed: response.data })
     };
-  } else {
-    console.warn("❌ IPN NON verificato", verification);
+  } catch (error) {
+    console.error("❌ Errore IPN:", error);
     return {
-      statusCode: 400,
-      body: "IPN non valido"
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message })
     };
   }
 };
