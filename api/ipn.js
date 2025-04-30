@@ -35,8 +35,8 @@ exports.handler = async function (event, context) {
     }
 
     // 🔐 Autenticazione PayPal
-    const PAYPAL_CLIENT_ID = "AQkjs0Ptk4Zpl5u2ye3F9QfpwiSc0qeWotEpuACJ3j8qRSAbsPK0PJKa3-ZwE42Cpmy3eaBXemoAQa4i";
-    const PAYPAL_SECRET = "EJ9BNB3r9MLMfHQdICy_w8AnCqRE6oaX_ZNSv-XhqbwZg8_KX-lKS9MW2pj9d9IOAcJ9jOAaogvssy1X";
+    const PAYPAL_CLIENT_ID = "AQoq1rcJwqsONS9SiOP2kZ8Dl7s2Asm4mTmEbm2e1krTT6_2pU14gwfd74kljkknAyr0LZeL1HyXYHb4";
+    const PAYPAL_SECRET = "EIW7oQNMn7-SlxBO7v_8IXUaZMezaXG8eXTVNZ9QpCJfACEwrZrxrRjQywcIFNInjE5pMJXI3OZkMqwD";
 
     const basicAuth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString("base64");
 
