@@ -42,7 +42,7 @@ exports.handler = async function (event, context) {
 
     // 💳 Cattura ordine PayPal
     const captureRes = await axios.post(
-      `https://api-m.sandbox.paypal.com/v2/checkout/orders/${orderId}/capture`,
+      `https://api-m.paypal.com/v2/checkout/orders/${orderId}/capture`,
       {},
       {
         headers: {
