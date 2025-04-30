@@ -33,7 +33,7 @@ exports.handler = async function (event, context) {
     }
 
     // 🔁 Chiama la funzione main.py di Appwrite
-    const FUNCTION_ID = "67f6d345003e6da67d40";
+    const FUNCTION_ID = "67fd0175002fa4a735c4";
     const APPWRITE_API_KEY = "standard_9eb0f84522bd452ab9c78a14ae51298b6eb019b2f803a2c17221e37f422064137df7be925f7b6832eb91f511428779103737b1238b139c1cfffaa00b131a65dd1f203f8a54c2b163485319aa750920d3b3f03dedc78b46773e58470bdf3a9e7033d94896171fea4b8034f252405f0eaa5cc2c07ebb7e0634ad503a09262077ca"; // <-- inserisci la tua vera API key
     const APPWRITE_PROJECT_ID = "67f037f300060437d16d"; // <-- inserisci il tuo vero Project ID
     const APPWRITE_ENDPOINT = "https://cloud.appwrite.io/v1";
