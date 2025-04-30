@@ -1,19 +1,7 @@
 {
-  "name": "telegram-bridge",
-  "version": "1.0.0",
-  "description": "Bridge tra Netlify e Appwrite",
-  "main": "index.js",
-  "type": "commonjs",
-  "scripts": {
-    "build": "echo 'Build completa'"
-  },
-  "dependencies": {
-    "node-fetch": "^2.6.7"
-  }
-}
-{
   "name": "netlify-functions",
   "version": "1.0.0",
+  "type": "module",
   "dependencies": {
     "axios": "^1.6.8"
   }
