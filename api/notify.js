@@ -34,13 +34,12 @@ exports.handler = async function (event, context) {
       };
     }
 
-    // Chiamata alla funzione Appwrite (main.py)
-    await fetch('https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions', {
+    const appwriteRes = await fetch('https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Appwrite-Project': '67fd01767b6cc3ff6cc6',
-        'X-Appwrite-Key': 'standard_9eb0...'  // sostituisci con la tua chiave reale se diversa
+        'X-Appwrite-Key': 'standard_9eb0...' // ← assicurati che sia corretta
       },
       body: JSON.stringify({
         source: 'manual-return',
@@ -49,17 +48,28 @@ exports.handler = async function (event, context) {
       })
     });
 
+    const result = await appwriteRes.json();
+    console.log("Risposta da Appwrite:", result);
+
+    if (!appwriteRes.ok) {
+      return {
+        statusCode: 502,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Errore da Appwrite', details: result })
+      };
+    }
+
     return {
       statusCode: 200,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ status: 'notifica inviata' })
+      body: JSON.stringify({ status: 'notifica inviata', result: result })
     };
   } catch (error) {
     console.error('Errore:', error);
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: 'Errore interno del server' })
+      body: JSON.stringify({ error: 'Errore interno del server', details: error.message })
     };
   }
 };
