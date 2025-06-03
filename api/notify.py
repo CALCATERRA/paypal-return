@@ -7,7 +7,7 @@ def handler(event, context):
     try:
         body = json.loads(event['body'])
 
-        # 🔍 Caso 1: Richiesta manuale da bottone su index.html
+        # Caso 1: Richiamo manuale (bottone su index.html)
         if body.get("source") == "manual-return":
             chat_id = body.get("chat_id")
             step = body.get("step")
@@ -18,9 +18,7 @@ def handler(event, context):
                     "body": json.dumps({"error": "Missing chat_id or step"})
                 }
 
-            print(f"🔁 Richiamo manuale: chat_id={chat_id}, step={step}")
-
-            # Chiama Appwrite (main.py)
+            # Chiama main.py
             requests.post(
                 "https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions",
                 headers={"Content-Type": "application/json"},
@@ -37,26 +35,22 @@ def handler(event, context):
                     "Access-Control-Allow-Origin": "*",
                     "Access-Control-Allow-Headers": "*"
                 },
-                "body": json.dumps({"status": "ok", "from": "manual"})
+                "body": json.dumps({"status": "ok"})
             }
 
-        # 🔍 Caso 2: Webhook PayPal
-        event_type = body.get("event_type")
-        resource = body.get("resource", {})
-
-        if event_type == "PAYMENT.CAPTURE.COMPLETED":
-            custom_id = resource.get("custom_id")
+        # Caso 2: Webhook da PayPal
+        if body.get("event_type") == "PAYMENT.CAPTURE.COMPLETED":
+            custom_id = body.get("resource", {}).get("custom_id")
 
             if custom_id and "-" in custom_id:
                 chat_id, step = custom_id.split("-")
-                print(f"💰 Pagamento ricevuto da PayPal: chat_id={chat_id}, step={step}")
 
-                # Chiama Appwrite per mandare la foto
+                # Manda stessa richiesta del bottone (così funziona tutto senza cambiare main.py)
                 requests.post(
                     "https://67fd01767b6cc3ff6cc6.appwrite.global/v1/functions/67fd0175002fa4a735c4/executions",
                     headers={"Content-Type": "application/json"},
                     json={
-                        "source": "paypal",
+                        "source": "manual-return",  # <-- FONDAMENTALE!
                         "chat_id": chat_id,
                         "step": int(step)
                     }
@@ -64,10 +58,10 @@ def handler(event, context):
 
                 return {
                     "statusCode": 200,
-                    "body": json.dumps({"status": "ok", "from": "paypal"})
+                    "body": json.dumps({"status": "ok"})
                 }
 
-        # ⚠️ Nessuna azione eseguita
+        # Nessuna azione utile
         return {
             "statusCode": 200,
             "body": json.dumps({"status": "ignored"})
