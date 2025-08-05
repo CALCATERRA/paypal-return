@@ -16,7 +16,18 @@
         console.log(`chat_id: ${chat_id}, step: ${step}, amount: ${amount}`);
 
         // Attiva lo script Netlify (chiamata a funzione /api/notify)
-        fetch(`/.netlify/functions/notify?chat_id=${chat_id}&step=${step}&amount=${amount}`)
+        fetch("/.netlify/functions/notify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            chat_id,
+            step,
+            amount
+          })
+        })
+
           .then(() => {
             // Dopo 2 secondi, redirect a PayPal
             setTimeout(() => {
