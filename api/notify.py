@@ -17,6 +17,8 @@ print("🌐 event:", event)
 print("📦 context:", context)
 
 def handler(event, context):
+    print("🚀 Funzione notify avviata")
+    print("📥 Metodo ricevuto:", event.get("httpMethod", ""))
     # Estrai i parametri dal link
     params = parse_qs(event["rawQuery"])
     chat_id = params["chat_id"][0]
