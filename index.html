@@ -7,40 +7,13 @@
   <script>
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
-      const chat_id = params.get("chat_id");
-      const step = params.get("step");
       const amount = params.get("amount");
 
-      if (chat_id && step && amount) {
-        // Salva i dati nel localStorage (opzionale) o logga per debug
-        console.log(`chat_id: ${chat_id}, step: ${step}, amount: ${amount}`);
-
-        // Attiva lo script Netlify (chiamata a funzione /api/notify)
-        fetch("/.netlify/functions/notify", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            chat_id: chat_id,
-            step: step,
-            amount: amount,
-            secret: "IL_TUO_SECRET_TOKEN"
-          })
-        })
-
-          .then(() => {
-            // Dopo 2 secondi, redirect a PayPal
-            setTimeout(() => {
-              window.location.href = `https://paypal.me/SimoneFoulesoll/${amount}`;
-            }, 2000);
-          })
-          .catch(err => {
-            console.error("Errore nella chiamata a notify:", err);
-            document.body.innerHTML = "<h2>Errore durante la preparazione al pagamento.</h2>";
-          });
+      if (amount) {
+        // Reindirizza subito a PayPal
+        window.location.href = `https://paypal.me/SimoneFoulesoll/${amount}`;
       } else {
-        document.body.innerHTML = "<h2>Parametri mancanti. Riprova dal bot Telegram.</h2>";
+        document.body.innerHTML = "<h2>Parametro mancante. Riprova dal bot Telegram.</h2>";
       }
     };
   </script>
