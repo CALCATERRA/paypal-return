@@ -45,7 +45,7 @@ def handler(event, context):
         mail.select("inbox")
 
         found = False
-        for attempt in range(60):  # fino a 5 minuti, 60*5s
+        for attempt in range(60):  # fino a 5 minuti (60 tentativi da 5 secondi)
             print(f"⏳ Tentativo {attempt+1}/60 di ricerca email non lette da service@paypal.it")
             result, data = mail.search(None, '(UNSEEN FROM "service@paypal.it")')
 
@@ -78,14 +78,14 @@ def handler(event, context):
 
                     print("📃 Corpo email ricevuto")
 
-                    # Cerca importo nel testo
-                    match = re.search(r"Hai ricevuto €\s*([\d,.]+)", body_email)
+                    # Cerca importo nel testo (es: "Hai ricevuto € 1,99")
+                    match = re.search(r"Hai ricevuto €\s*([\d.,]+)", body_email)
                     if match:
                         amount_str = match.group(1).replace(",", ".")
                         try:
                             amount = float(amount_str)
                             print(f"💶 Importo letto: €{amount:.2f}")
-                            if amount == expected_amount:  # ✅ Controllo preciso al centesimo
+                            if abs(amount - expected_amount) < 0.01:  # confronto con tolleranza centesimi
                                 found = True
                                 print("✅ Pagamento confermato!")
                                 mail.store(email_id, '+FLAGS', '\\Seen')
