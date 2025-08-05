@@ -12,6 +12,10 @@ EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
 APPWRITE_ENDPOINT = os.environ["APPWRITE_FUNCTION_ENDPOINT"]
 APPWRITE_KEY = os.environ["APPWRITE_FUNCTION_KEY"]
 
+print("🚀 Funzione notify avviata")
+print("🌐 event:", event)
+print("📦 context:", context)
+
 def handler(event, context):
     # Estrai i parametri dal link
     params = parse_qs(event["rawQuery"])
