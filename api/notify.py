@@ -45,8 +45,8 @@ def handler(event, context):
         mail.select("inbox")
 
         found = False
-        for attempt in range(60):  # fino a 5 minuti (60 tentativi da 5 secondi)
-            print(f"⏳ Tentativo {attempt+1}/60 di ricerca email non lette da service@paypal.it")
+        for attempt in range(3):  # fino a 5 minuti (60 tentativi da 5 secondi)
+            print(f"⏳ Tentativo {attempt+1}/3 di ricerca email non lette da service@paypal.it")
             result, data = mail.search(None, '(UNSEEN FROM "service@paypal.it")')
 
             if result == "OK":
