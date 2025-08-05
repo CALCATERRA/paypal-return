@@ -20,10 +20,11 @@ def handler(event, context):
     print("🚀 Funzione notify avviata")
     print("📥 Metodo ricevuto:", event.get("httpMethod", ""))
     # Estrai i parametri dal link
-    params = parse_qs(event["rawQuery"])
-    chat_id = params["chat_id"][0]
-    step = int(params["step"][0])
-    expected_amount = float(params["amount"][0])
+    body = json.loads(event["body"])
+    chat_id = body["chat_id"]
+    step = int(body["step"])
+    expected_amount = float(body["amount"])
+
 
     print(f"✅ Inizio monitoraggio pagamento PayPal per chat_id={chat_id}, step={step}, amount={expected_amount:.2f}€")
 
