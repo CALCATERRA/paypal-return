@@ -105,7 +105,11 @@ def handler(event, context):
                 "X-Appwrite-Key": APPWRITE_KEY,
                 "Content-Type": "application/json"
             }
-            data = {"chat_id": chat_id, "step": step}
+            data = {
+                "chat_id": chat_id,
+                "step": step,
+                "secret_token": SECRET_TOKEN  # 🔐 Aggiunto per validazione su Appwrite
+            }
             print("🚀 Invio richiesta a funzione Appwrite...")
             response = requests.post(APPWRITE_ENDPOINT, headers=headers, json=data)
             print(f"📨 Risposta Appwrite: {response.status_code} {response.text}")
