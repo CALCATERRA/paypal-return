@@ -6,6 +6,8 @@ import re
 import json
 import requests
 
+print("✅ notify.py è stato invocato")
+
 EMAIL_ACCOUNT = os.environ["EMAIL_ACCOUNT"]
 EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
 APPWRITE_ENDPOINT = os.environ["APPWRITE_FUNCTION_ENDPOINT"]
