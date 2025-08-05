@@ -19,7 +19,7 @@ def handler(event, context):
     try:
         body = json.loads(event.get("body", "{}"))
 
-        # 🔐 Controllo token
+        # 🔐 Controllo token in ingresso (dal trigger manuale Netlify)
         if body.get("secret") != SECRET_TOKEN:
             print("❌ Token segreto non valido")
             return {
@@ -85,7 +85,7 @@ def handler(event, context):
                         try:
                             amount = float(amount_str)
                             print(f"💶 Importo letto: €{amount:.2f}")
-                            if amount == expected_amount:  # ✅ Controllo preciso
+                            if amount == expected_amount:  # ✅ Controllo preciso al centesimo
                                 found = True
                                 print("✅ Pagamento confermato!")
                                 mail.store(email_id, '+FLAGS', '\\Seen')
@@ -108,7 +108,7 @@ def handler(event, context):
             data = {
                 "chat_id": chat_id,
                 "step": step,
-                "secret_token": SECRET_TOKEN  # 🔐 Aggiunto per validazione su Appwrite
+                "secret_token": SECRET_TOKEN  # 🔐 Protezione richiesta verso Appwrite
             }
             print("🚀 Invio richiesta a funzione Appwrite...")
             response = requests.post(APPWRITE_ENDPOINT, headers=headers, json=data)
