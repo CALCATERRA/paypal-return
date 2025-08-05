@@ -10,6 +10,7 @@ EMAIL_ACCOUNT = os.environ["EMAIL_ACCOUNT"]
 EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
 APPWRITE_ENDPOINT = os.environ["APPWRITE_FUNCTION_ENDPOINT"]
 APPWRITE_KEY = os.environ["APPWRITE_FUNCTION_KEY"]
+SECRET_TOKEN = os.environ["SECRET_TOKEN"]  # 🔐 Protezione token
 
 def handler(event, context):
     print("🚀 Funzione notify avviata")
@@ -17,6 +18,15 @@ def handler(event, context):
 
     try:
         body = json.loads(event.get("body", "{}"))
+
+        # 🔐 Controllo token
+        if body.get("secret") != SECRET_TOKEN:
+            print("❌ Token segreto non valido")
+            return {
+                "statusCode": 403,
+                "body": json.dumps({"success": False, "message": "Accesso non autorizzato"})
+            }
+
         chat_id = body["chat_id"]
         step = int(body["step"])
         expected_amount = float(body["amount"])
@@ -75,11 +85,9 @@ def handler(event, context):
                         try:
                             amount = float(amount_str)
                             print(f"💶 Importo letto: €{amount:.2f}")
-                            # Qui controllo esatto senza tolleranza
-                            if amount == expected_amount:
+                            if amount == expected_amount:  # ✅ Controllo preciso
                                 found = True
                                 print("✅ Pagamento confermato!")
-                                # Segna l'email come letta
                                 mail.store(email_id, '+FLAGS', '\\Seen')
                                 break
                         except Exception as e:
@@ -92,7 +100,6 @@ def handler(event, context):
         mail.logout()
 
         if found:
-            # Chiamata ad Appwrite per inviare la foto
             headers = {
                 "X-Appwrite-Project": "default",
                 "X-Appwrite-Key": APPWRITE_KEY,
