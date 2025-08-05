@@ -80,6 +80,7 @@ def handler(event, context):
                         if abs(amount - expected_amount) < 0.01:
                             found = True
                             print(f"💰 Pagamento confermato: €{amount:.2f}")
+                            mail.store(email_id, '+FLAGS', '\\Seen')
                             break
                     except Exception as e:
                         print(f"❌ Errore nella conversione importo: {e}")
