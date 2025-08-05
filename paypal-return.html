@@ -16,7 +16,7 @@
         console.log(`chat_id: ${chat_id}, step: ${step}, amount: ${amount}`);
 
         // Attiva lo script Netlify (chiamata a funzione /api/notify)
-        fetch(`/api/notify?chat_id=${chat_id}&step=${step}&amount=${amount}`)
+        fetch(`/.netlify/functions/notify?chat_id=${chat_id}&step=${step}&amount=${amount}`)
           .then(() => {
             // Dopo 2 secondi, redirect a PayPal
             setTimeout(() => {
@@ -37,4 +37,5 @@
   <h2>Un attimo... ti stiamo reindirizzando a PayPal 💳</h2>
 </body>
 </html>
+
 
