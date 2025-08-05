@@ -7,36 +7,12 @@
   <script>
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
-      const chat_id = params.get("chat_id");
-      const step = params.get("step");
       const amount = params.get("amount");
 
-      if (chat_id && step && amount) {
-        // Chiamata al server Netlify prima del redirect
-        fetch("https://comfy-mermaid-9cebbf.netlify.app/.netlify/functions/notify", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            chat_id: chat_id,
-            step: step,
-            amount: amount,
-            secret: "SECRET_TOKEN"
-          })
-        })
-        .then(() => {
-          // Dopo la notifica, reindirizza a PayPal
-          setTimeout(() => {
-            window.location.href = `https://paypal.me/SimoneFoulesoll/${amount}`;
-          }, 1500);
-        })
-        .catch(err => {
-          console.error("Errore nella chiamata a notify:", err);
-          document.body.innerHTML = "<h2>Errore durante la preparazione al pagamento.</h2>";
-        });
+      if (amount) {
+        window.location.href = `https://paypal.me/SimoneFoulesoll/${amount}`;
       } else {
-        document.body.innerHTML = "<h2>Parametri mancanti. Riprova dal bot Telegram.</h2>";
+        document.body.innerHTML = "<h2>Parametro mancante. Riprova dal bot Telegram.</h2>";
       }
     };
   </script>
