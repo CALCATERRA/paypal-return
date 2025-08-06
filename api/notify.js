@@ -65,10 +65,20 @@ export async function handler(event, context) {
 
     const chat_id = body.chat_id;
     const step = parseInt(body.step, 10);
-    const expected_amount = parseFloat(body.amount);
+    //const expected_amount = parseFloat(body.amount);
+
+    let expected_amount = 0;
+
+    if (typeof body.amount === "string") {
+      // Rimuovi simboli come €, spazi e sostituisci virgola con punto
+      const cleaned = body.amount.replace(/[^\d,\.]/g, "").replace(",", ".");
+      expected_amount = parseFloat(cleaned);
+    } else if (typeof body.amount === "number") {
+      expected_amount = body.amount;
+    }
 
     if (isNaN(expected_amount)) {
-      console.log("❌ Importo atteso non valido (NaN)");
+      console.log("❌ Importo atteso non valido (NaN):", body.amount);
       return {
         statusCode: 400,
         body: JSON.stringify({ success: false, message: "Importo atteso non valido" }),
