@@ -22,8 +22,7 @@ function openInbox(imap) {
 
 function searchUnreadPaypalEmails(imap) {
   return new Promise((resolve, reject) => {
-    // Cerca email non lette da service@paypal.it
-    imap.search(["UNSEEN", ['FROM', "service@paypal.it"]], (err, results) => {
+    imap.search(["UNSEEN", ["FROM", "service@paypal.it"]], (err, results) => {
       if (err) reject(err);
       else resolve(results);
     });
@@ -64,13 +63,16 @@ export async function handler(event, context) {
   try {
     const body = JSON.parse(event.body || "{}");
 
-    //if (body.secret !== SECRET_TOKEN) {
-     // console.log("❌ Token segreto non valido");
-     // return {
-      //  statusCode: 403,
-       // body: JSON.stringify({ success: false, message: "Accesso non autorizzato" }),
-      //};
-    //}
+    // Se vuoi riattivare il controllo token, decommenta
+    /*
+    if (body.secret !== SECRET_TOKEN) {
+      console.log("❌ Token segreto non valido");
+      return {
+        statusCode: 403,
+        body: JSON.stringify({ success: false, message: "Accesso non autorizzato" }),
+      };
+    }
+    */
 
     const chat_id = body.chat_id;
     const step = parseInt(body.step, 10);
@@ -84,9 +86,9 @@ export async function handler(event, context) {
       host: "imap.gmail.com",
       port: 993,
       tls: true,
+      tlsOptions: { rejectUnauthorized: false } // <<=== Qui disabiliti il controllo SSL per evitare errori self-signed
     });
 
-    // Promisify IMAP connection & logic
     const connectImap = () =>
       new Promise((resolve, reject) => {
         imap.once("ready", resolve);
@@ -99,7 +101,6 @@ export async function handler(event, context) {
 
     let found = false;
 
-    // Faccio un solo tentativo, come nel python (se vuoi aumentare i tentativi, aggiungi un ciclo con delay)
     const emailIds = await searchUnreadPaypalEmails(imap);
     console.log(`📧 Trovate ${emailIds.length} email non lette da service@paypal.it`);
 
@@ -141,15 +142,15 @@ export async function handler(event, context) {
       };
 
       const data = {
-        chat_id: chat_id,
-        step: step,
+        chat_id,
+        step,
         secret_token: SECRET_TOKEN,
       };
 
       console.log("🚀 Invio richiesta a funzione Appwrite...");
       const response = await fetch(APPWRITE_ENDPOINT, {
         method: "POST",
-        headers: headers,
+        headers,
         body: JSON.stringify(data),
       });
 
