@@ -63,7 +63,7 @@ export async function handler(event, context) {
   try {
     const body = JSON.parse(event.body || "{}");
 
-    // Se vuoi riattivare il controllo token, decommenta
+    // Decommenta per abilitare il controllo token
     /*
     if (body.secret !== SECRET_TOKEN) {
       console.log("❌ Token segreto non valido");
@@ -86,7 +86,7 @@ export async function handler(event, context) {
       host: "imap.gmail.com",
       port: 993,
       tls: true,
-      tlsOptions: { rejectUnauthorized: false } // <<=== Qui disabiliti il controllo SSL per evitare errori self-signed
+      tlsOptions: { rejectUnauthorized: false } // Disabilita controllo SSL per errori self-signed
     });
 
     const connectImap = () =>
@@ -117,7 +117,8 @@ export async function handler(event, context) {
       const body_email = parsed.text || "";
       console.log("📃 Corpo email ricevuto");
 
-      const match = body_email.match(/Hai ricevuto €\s*([\d.,]+)/);
+      // Regex più robusta per importo
+      const match = body_email.match(/Hai ricevuto\s*(?:€|EUR)?\s*([\d.,]+)/i);
       if (match) {
         let amountStr = match[1].replace(",", ".");
         let amount = parseFloat(amountStr);
