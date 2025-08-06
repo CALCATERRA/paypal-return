@@ -1,8 +1,8 @@
 import os
 import requests
 
-APPWRITE_ENDPOINT = os.getenv("APPWRITE_ENDPOINT")  # es. https://67fd...appwrite.global/v1
-APPWRITE_PROJECT = os.getenv("APPWRITE_PROJECT")    # ID del progetto
+APPWRITE_ENDPOINT = os.getenv("APPWRITE_FUNCTION_ENDPOINT")  # es. https://67fd...appwrite.global/v1
+APPWRITE_PROJECT = os.getenv("APPWRITE_PROJECT_ID")    # ID del progetto
 APPWRITE_FUNCTION_ID = os.getenv("APPWRITE_FUNCTION_ID")  # ID della funzione da eseguire
 APPWRITE_FUNCTION_KEY = os.getenv("APPWRITE_FUNCTION_KEY")  # API Key valida
 
