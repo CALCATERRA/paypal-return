@@ -12,6 +12,7 @@ EMAIL_ACCOUNT = os.environ["EMAIL_ACCOUNT"]
 EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
 APPWRITE_ENDPOINT = os.environ["APPWRITE_FUNCTION_ENDPOINT"]
 APPWRITE_KEY = os.environ["APPWRITE_FUNCTION_KEY"]
+APPWRITE_PROJECT_ID = os.environ["APPWRITE_PROJECT_ID"]
 SECRET_TOKEN = os.environ["SECRET_TOKEN"]  # 🔐 Protezione token
 
 def handler(event, context):
@@ -103,7 +104,7 @@ def handler(event, context):
 
         if found:
             headers = {
-                "X-Appwrite-Project": "default",
+                "X-Appwrite-Project": APPWRITE_PROJECT_ID,
                 "X-Appwrite-Key": APPWRITE_KEY,
                 "Content-Type": "application/json"
             }
