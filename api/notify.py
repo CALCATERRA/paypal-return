@@ -1,28 +1,142 @@
 import os
+import time
+import email
+import imaplib
+import re
+import json
 import requests
 
-APPWRITE_ENDPOINT = os.getenv("APPWRITE_FUNCTION_ENDPOINT")  # es. https://67fd...appwrite.global/v1
-APPWRITE_PROJECT = os.getenv("APPWRITE_PROJECT_ID")    # ID del progetto
-APPWRITE_FUNCTION_ID = os.getenv("APPWRITE_FUNCTION_ID")  # ID della funzione da eseguire
-APPWRITE_FUNCTION_KEY = os.getenv("APPWRITE_FUNCTION_KEY")  # API Key valida
+print("✅ notify.py è stato invocato")
 
-URL = f"{APPWRITE_ENDPOINT}/functions/{APPWRITE_FUNCTION_ID}/executions"
+EMAIL_ACCOUNT = os.environ["EMAIL_ACCOUNT"]
+EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
+APPWRITE_ENDPOINT = os.environ["APPWRITE_FUNCTION_ENDPOINT"]
+APPWRITE_KEY = os.environ["APPWRITE_FUNCTION_KEY"]
+APPWRITE_PROJECT_ID = os.environ["APPWRITE_PROJECT_ID"]
+SECRET_TOKEN = os.environ["SECRET_TOKEN"]  # 🔐 Protezione token
 
-headers = {
-    "X-Appwrite-Project": APPWRITE_PROJECT,
-    "X-Appwrite-Key": APPWRITE_FUNCTION_KEY,
-    "Content-Type": "application/json"
-}
+def handler(event, context):
+    print("🚀 Funzione notify avviata")
+    print("📥 Metodo ricevuto:", event.get("httpMethod", ""))
 
-payload = {
-    "source": "manual-return",
-    "chat_id": "123456789",
-    "step": 0,
-    "secret_token": os.getenv("SECRET_TOKEN")
-}
+    try:
+        body = json.loads(event.get("body", "{}"))
 
-try:
-    res = requests.post(URL, json=payload, headers=headers, timeout=10)
-    print("✅ Risposta Appwrite:", res.status_code, res.text)
-except Exception as e:
-    print("❌ Errore di connessione:", str(e))
+        # 🔐 Controllo token in ingresso (dal trigger manuale Netlify)
+        if body.get("secret") != SECRET_TOKEN:
+            print("❌ Token segreto non valido")
+            return {
+                "statusCode": 403,
+                "body": json.dumps({"success": False, "message": "Accesso non autorizzato"})
+            }
+
+        chat_id = body["chat_id"]
+        step = int(body["step"])
+        expected_amount = float(body["amount"])
+    except Exception as e:
+        print(f"❌ Errore nel parsing dei parametri: {e}")
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"success": False, "message": "Parametri mancanti o non validi"})
+        }
+
+    print(f"✅ Inizio monitoraggio pagamento PayPal per chat_id={chat_id}, step={step}, amount={expected_amount:.2f}€")
+
+    try:
+        mail = imaplib.IMAP4_SSL("imap.gmail.com")
+        mail.login(EMAIL_ACCOUNT, EMAIL_PASSWORD)
+        mail.select("inbox")
+
+        found = False
+        for attempt in range(1):  # fino a 5 minuti (60 tentativi da 5 secondi)
+            print(f"⏳ Tentativo {attempt+1}/1 di ricerca email non lette da service@paypal.it")
+            result, data = mail.search(None, '(UNSEEN FROM "service@paypal.it")')
+
+            if result == "OK":
+                email_ids = data[0].split()
+                print(f"📧 Trovate {len(email_ids)} email non lette")
+                for email_id in reversed(email_ids):
+                    res, msg_data = mail.fetch(email_id, "(RFC822)")
+                    if res != "OK":
+                        print("⚠️ Errore fetch email")
+                        continue
+
+                    raw_email = msg_data[0][1]
+                    msg = email.message_from_bytes(raw_email)
+
+                    subject = msg["Subject"] or ""
+                    print(f"🔎 Subject: {subject}")
+                    if "Hai ricevuto" not in subject:
+                        continue
+
+                    # Leggi corpo email
+                    body_email = ""
+                    if msg.is_multipart():
+                        for part in msg.walk():
+                            if part.get_content_type() == "text/plain":
+                                body_email = part.get_payload(decode=True).decode(errors="ignore")
+                                break
+                    else:
+                        body_email = msg.get_payload(decode=True).decode(errors="ignore")
+
+                    print("📃 Corpo email ricevuto")
+
+                    # Cerca importo nel testo (es: "Hai ricevuto € 1,99")
+                    match = re.search(r"Hai ricevuto €\s*([\d.,]+)", body_email)
+                    if match:
+                        amount_str = match.group(1).replace(",", ".")
+                        try:
+                            amount = float(amount_str)
+                            print(f"💶 Importo letto: €{amount:.2f}")
+                            if abs(amount - expected_amount) < 0.01:  # confronto con tolleranza centesimi
+                                found = True
+                                print("✅ Pagamento confermato!")
+                                mail.store(email_id, '+FLAGS', '\\Seen')
+                                break
+                        except Exception as e:
+                            print(f"❌ Errore conversione importo: {e}")
+
+            if found:
+                break
+            time.sleep(5)
+
+        mail.logout()
+
+        if found:
+            headers = {
+                "X-Appwrite-Project": APPWRITE_PROJECT_ID,
+                "X-Appwrite-Key": APPWRITE_KEY,
+                "Content-Type": "application/json"
+            }
+            data = {
+                "chat_id": chat_id,
+                "step": step,
+                "secret_token": SECRET_TOKEN  # 🔐 Protezione richiesta verso Appwrite
+            }
+            print("🚀 Invio richiesta a funzione Appwrite...")
+            response = requests.post(APPWRITE_ENDPOINT, headers=headers, json=data)
+            print(f"📨 Risposta Appwrite: {response.status_code} {response.text}")
+
+            if response.status_code == 200:
+                return {
+                    "statusCode": 200,
+                    "body": json.dumps({"success": True, "message": "Pagamento confermato e foto inviata"})
+                }
+            else:
+                return {
+                    "statusCode": 500,
+                    "body": json.dumps({"success": False, "message": "Errore nell'invio foto tramite Appwrite"})
+                }
+        else:
+            print("⌛ Nessun pagamento rilevato entro il tempo limite.")
+            return {
+                "statusCode": 408,
+                "body": json.dumps({"success": False, "message": "Nessun pagamento ricevuto entro 5 minuti"})
+            }
+
+    except Exception as e:
+        print(f"❌ Errore generale: {e}")
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"success": False, "message": "Errore interno del server"})
+        }
