@@ -22,7 +22,7 @@ function openInbox(imap) {
 
 function searchUnreadPaypalEmails(imap) {
   return new Promise((resolve, reject) => {
-    imap.search(["UNSEEN", ["FROM", "service@paypal.it"]], (err, results) => {
+    imap.search(["UNSEEN", ["FROM", "assistenza@paypal.it"]], (err, results) => {
       if (err) reject(err);
       else resolve(results);
     });
@@ -63,20 +63,17 @@ export async function handler(event, context) {
   try {
     const body = JSON.parse(event.body || "{}");
 
-    // Decommenta per abilitare il controllo token
-    /*
-    if (body.secret !== SECRET_TOKEN) {
-      console.log("❌ Token segreto non valido");
-      return {
-        statusCode: 403,
-        body: JSON.stringify({ success: false, message: "Accesso non autorizzato" }),
-      };
-    }
-    */
-
     const chat_id = body.chat_id;
     const step = parseInt(body.step, 10);
     const expected_amount = parseFloat(body.amount);
+
+    if (isNaN(expected_amount)) {
+      console.log("❌ Importo atteso non valido (NaN)");
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ success: false, message: "Importo atteso non valido" }),
+      };
+    }
 
     console.log(`✅ Inizio monitoraggio pagamento PayPal per chat_id=${chat_id}, step=${step}, amount=${expected_amount.toFixed(2)}€`);
 
@@ -86,7 +83,7 @@ export async function handler(event, context) {
       host: "imap.gmail.com",
       port: 993,
       tls: true,
-      tlsOptions: { rejectUnauthorized: false } // Disabilita controllo SSL per errori self-signed
+      tlsOptions: { rejectUnauthorized: false }
     });
 
     const connectImap = () =>
@@ -102,7 +99,7 @@ export async function handler(event, context) {
     let found = false;
 
     const emailIds = await searchUnreadPaypalEmails(imap);
-    console.log(`📧 Trovate ${emailIds.length} email non lette da service@paypal.it`);
+    console.log(`📧 Trovate ${emailIds.length} email non lette da assistenza@paypal.it`);
 
     for (let i = emailIds.length - 1; i >= 0; i--) {
       const uid = emailIds[i];
@@ -112,13 +109,12 @@ export async function handler(event, context) {
       const subject = parsed.subject || "";
       console.log(`🔎 Subject: ${subject}`);
 
-      if (!subject.includes("Hai ricevuto")) continue;
+      if (!subject.toLowerCase().includes("hai ricevuto")) continue;
 
       const body_email = parsed.text || "";
       console.log("📃 Corpo email ricevuto");
 
-      // Regex più robusta per importo
-      const match = body_email.match(/Hai ricevuto\s*(?:€|EUR)?\s*([\d.,]+)/i);
+      const match = body_email.match(/hai ricevuto\s*€?\s*([\d.,]+)/i);
       if (match) {
         let amountStr = match[1].replace(",", ".");
         let amount = parseFloat(amountStr);
