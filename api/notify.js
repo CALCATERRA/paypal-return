@@ -64,13 +64,13 @@ export async function handler(event, context) {
   try {
     const body = JSON.parse(event.body || "{}");
 
-    #if (body.secret !== SECRET_TOKEN) {
-    #  console.log("❌ Token segreto non valido");
-    #  return {
-    #    statusCode: 403,
-    #    body: JSON.stringify({ success: false, message: "Accesso non autorizzato" }),
-    #  };
-    #}
+    //if (body.secret !== SECRET_TOKEN) {
+     // console.log("❌ Token segreto non valido");
+     // return {
+      //  statusCode: 403,
+       // body: JSON.stringify({ success: false, message: "Accesso non autorizzato" }),
+      //};
+    //}
 
     const chat_id = body.chat_id;
     const step = parseInt(body.step, 10);
